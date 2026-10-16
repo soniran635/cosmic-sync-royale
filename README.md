@@ -1,4 +1,3 @@
-cd ~/Projects/cosmic-sync-royale && cat << 'EOF' > README.md
 # 🌌 Cosmic Sync: Take The Mic!
 
 [![GitHub Pages](https://img.shields.io/badge/Live-GitHub%20Pages-38bdf8?style=for-the-badge&logo=github)](https://soniran635.github.io/cosmic-sync-royale/)
