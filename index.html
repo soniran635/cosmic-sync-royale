@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cosmic Sync | Take The Mic!</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    .retro-font { font-family: 'Press Start 2P', monospace; }
+    canvas {
+      background: radial-gradient(circle at center, #0b0f19 0%, #030712 100%);
+      cursor: crosshair;
+    }
+    .hud-glass {
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(14px);
+      border: 1.5px solid #38bdf8;
+    }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #334155; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen overflow-hidden flex flex-col justify-between p-3 select-none">
+
+  <!-- ==================== SCREEN 1: THE FLIGHT DECK (LOBBY) ==================== -->
+  <div id="lobby-screen" class="fixed inset-0 z-50 bg-slate-950/95 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="hud-glass rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative border-cyan-500/80 my-auto">
+      
+      <!-- HEADER -->
+      <div class="text-center mb-5">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/40 text-cyan-400 text-xs font-semibold mb-2">
+          <span>🚀 Universal Sync Icebreaker</span>
+        </div>
+        <h1 class="retro-font text-base sm:text-lg text-cyan-400 mb-1">COSMIC SYNC : TAKE THE MIC</h1>
+        <p class="text-xs text-slate-300">90s Orbital Navigation: Top Stardust Score Takes the Floor!</p>
+      </div>
+
+      <!-- PLAYER NAME & ROOM SETUP -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-slate-300 font-bold mb-1">Commander Call-Sign</label>
+          <input id="player-name-input" type="text" maxlength="16" value="Sonia" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 font-medium" placeholder="e.g., Sonia">
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-slate-300 font-bold mb-1">Mission Room Code</label>
+          <div class="flex gap-2">
+            <input id="room-code-input" type="text" value="DAILY-SYNC" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-cyan-400 font-mono focus:outline-none focus:border-cyan-400">
+            <button id="copy-room-link-btn" class="bg-slate-800 hover:bg-slate-700 px-3.5 py-2 rounded-xl border border-slate-700 text-xs text-cyan-300 transition-colors shrink-0 flex items-center gap-1.5 font-semibold">
+              🔗 Copy Link
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXCLUSIVE SPACECRAFT SELECTOR & INFINITE RESERVE NOTIFIER -->
+      <div class="mb-4">
+        <div class="flex justify-between items-center mb-1.5">
+          <label class="text-xs uppercase tracking-wider text-slate-300 font-bold">Select Vanguard Ship (Exclusive Lock)</label>
+          <span id="reserve-status" class="text-[11px] text-cyan-400/90 font-medium">12 Hero Ships + Infinite Reserve</span>
+        </div>
+        <div id="avatar-grid" class="grid grid-cols-4 sm:grid-cols-6 gap-2"></div>
+      </div>
+
+      <!-- LIVE CREW READY ROSTER -->
+      <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 mb-4">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
+            👥 Crew in Orbit: <span id="crew-count" class="text-amber-400">6 Pilots</span>
+          </span>
+          <span class="text-[10px] text-slate-400">Anti-camping enabled: Stationary ships decay</span>
+        </div>
+        <div id="crew-chips" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto scrollbar-thin"></div>
+      </div>
+
+      <!-- MONTHLY KUDOS BOUNTY -->
+      <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 mb-5">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-xs font-bold text-amber-400 flex items-center gap-1">
+            🏆 Monthly Cosmic Bounty
+          </span>
+          <span class="text-[10px] text-slate-400">Persistent across all days & links</span>
+        </div>
+        <input id="monthly-bounty-input" type="text" value="☕ Free Coffee & Slack Shoutout from Meeting Host" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
+      </div>
+
+      <!-- LAUNCH BUTTON -->
+      <button id="enter-arena-btn" class="w-full retro-font text-xs bg-gradient-to-r from-cyan-500 via-indigo-500 to-cyan-500 hover:opacity-90 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-cyan-500/25 transition-all">
+        🚀 LAUNCH INTO ORBIT!
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 2: ORBITAL ARENA ==================== -->
+  <header class="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between bg-slate-900/95 border-2 border-cyan-500/80 rounded-2xl px-5 py-2.5 shadow-2xl z-20 gap-3">
+    <div class="flex items-center gap-3">
+      <span class="text-3xl">🌌</span>
+      <div>
+        <h1 class="retro-font text-xs text-cyan-400">COSMIC SYNC</h1>
+        <p class="text-[11px] text-slate-400">90s Navigation: Hunt Rivals (Green Target) | Evade Fire (Red Halo)!</p>
+      </div>
+    </div>
+
+    <!-- 90-SECOND COUNTDOWN CLOCK -->
+    <div class="flex items-center gap-4">
+      <div class="text-center">
+        <div class="text-[9px] uppercase text-slate-400 font-bold tracking-wider">Flight Clock</div>
+        <div id="timer-display" class="retro-font text-2xl text-cyan-300">01:30</div>
+      </div>
+      <button id="start-btn" class="retro-font text-xs bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white px-5 py-2.5 rounded-xl border border-emerald-400 transition-all shadow-lg shadow-emerald-600/30">
+        ▶ ENGAGE THRUSTERS
+      </button>
+    </div>
+
+    <!-- AUDIO CONTROLS -->
+    <div class="flex items-center gap-2">
+      <button id="music-btn" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 text-xs text-cyan-400">
+        🎵 SYNTH: ON
+      </button>
+      <button id="audio-btn" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 text-xs text-slate-300">
+        🔊 SFX: ON
+      </button>
+    </div>
+  </header>
+
+  <!-- ARENA CANVAS -->
+  <main class="relative w-full max-w-6xl mx-auto flex-1 my-2 rounded-2xl overflow-hidden border-4 border-slate-800 shadow-2xl flex items-center justify-center bg-slate-950">
+    <canvas id="arena"></canvas>
+
+    <!-- LIVE STARDUST LEADERBOARD -->
+    <div class="absolute top-4 right-4 hud-glass rounded-xl p-3 text-xs w-64 shadow-2xl pointer-events-none">
+      <div class="retro-font text-[10px] text-cyan-400 mb-2 border-b border-slate-700 pb-1 flex justify-between items-center">
+        <span>RADAR TRACKER</span>
+        <span>✨ STARDUST</span>
+      </div>
+      <ol id="leaderboard-list" class="space-y-1.5 font-mono text-[11px]"></ol>
+    </div>
+
+    <!-- CONTROLS & AIMING HINT OVERLAY -->
+    <div class="absolute bottom-3 left-4 bg-slate-900/90 border border-slate-700 rounded-lg px-3.5 py-1.5 text-[11px] text-slate-300 pointer-events-none flex flex-wrap items-center gap-4">
+      <div>🖱️ <strong>Steer:</strong> Follows Mouse / WASD</div>
+      <div>⚡ <strong>Warp Booster:</strong> Spacebar</div>
+      <div>🟢 <strong>Green Ring:</strong> RAM TO EAT RIVAL</div>
+      <div>🔥 <strong>Red Vortex:</strong> Singularities (-2,500)</div>
+    </div>
+  </main>
+
+  <!-- ==================== SCREEN 3: POST-MISSION PODIUM ==================== -->
+  <div id="winner-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border-4 border-cyan-400 rounded-2xl max-w-2xl w-full p-6 text-center shadow-2xl relative my-auto">
+      <div class="text-5xl mb-2 animate-bounce">👑</div>
+      <h2 id="win-reason-badge" class="retro-font text-xs text-cyan-400 mb-1">MISSION ACCOMPLISHED!</h2>
+      <h3 id="winner-name" class="text-3xl font-black text-white mb-1">Sonia</h3>
+      <div id="winner-bounty" class="retro-font text-xs text-amber-300 mb-4">STARDUST: 142,500 CREDITS</div>
+
+      <!-- TABS -->
+      <div class="flex border-b border-slate-800 mb-4">
+        <button id="tab-today-btn" class="flex-1 py-2 text-xs font-bold retro-font text-cyan-400 border-b-2 border-cyan-400">
+          🎙️ Today's Speaker Sequence
+        </button>
+        <button id="tab-season-btn" class="flex-1 py-2 text-xs font-bold retro-font text-slate-400 hover:text-slate-200">
+          🏆 Monthly Season Standings
+        </button>
+      </div>
+
+      <!-- TAB 1: TURN ORDER -->
+      <div id="tab-today-content">
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-left mb-4 max-h-48 overflow-y-auto scrollbar-thin">
+          <ol id="speaker-order-list" class="space-y-1.5 text-xs font-medium text-slate-200"></ol>
+        </div>
+        <div class="bg-cyan-950/40 border border-cyan-500/50 rounded-xl p-3 text-left mb-5">
+          <div class="text-[10px] retro-font text-cyan-400 mb-1">🎤 Flight Lead Floor Challenge:</div>
+          <p id="winner-prompt" class="text-xs text-cyan-100 font-semibold leading-relaxed"></p>
+        </div>
+      </div>
+
+      <!-- TAB 2: SEASON HALL OF FAME -->
+      <div id="tab-season-content" class="hidden">
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-left mb-4 max-h-56 overflow-y-auto scrollbar-thin">
+          <div class="flex justify-between items-center text-[10px] uppercase font-bold text-slate-400 pb-2 border-b border-slate-800 mb-2">
+            <span>Rank & Pilot</span>
+            <span>Trophies</span>
+            <span>Total Stardust</span>
+          </div>
+          <ul id="season-leaderboard-list" class="space-y-2 text-xs"></ul>
+        </div>
+        <div class="flex justify-between items-center bg-indigo-950/40 border border-indigo-500/50 rounded-xl p-3 mb-5 text-xs text-indigo-200">
+          <div>🎁 <strong>Active Monthly Bounty:</strong> <span id="season-bounty-text" class="text-amber-300 font-semibold"></span></div>
+          <button id="export-season-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1 rounded text-[10px] font-mono font-bold">
+            💾 Export Ledger
+          </button>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="flex flex-wrap gap-3 justify-center">
+        <button id="copy-slack-btn" class="retro-font text-xs bg-slate-800 hover:bg-slate-700 text-cyan-300 px-4 py-3 rounded-xl border border-cyan-400/50 transition-all flex items-center gap-2">
+          📋 COPY SEQUENCE TO SLACK / TEAMS
+        </button>
+        <button id="restart-btn" class="retro-font text-xs bg-gradient-to-r from-cyan-500 to-indigo-500 hover:opacity-90 text-white font-bold px-5 py-3 rounded-xl transition-all shadow-lg shadow-cyan-500/30">
+          🔄 NEXT FLIGHT
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-slate-900 border-2 border-cyan-400 text-cyan-300 px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold hidden"></div>
+
+  <!-- ==================== GAME JAVASCRIPT ==================== -->
+  <script>
+    // --- 1. RETRO SCI-FI SYNTH AUDIO ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let sfxOn = true;
+    let musicOn = true;
+    let musicInterval = null;
+
+    function playTone(freq, type = 'sine', duration = 0.08, vol = 0.08) {
+      if (!sfxOn) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    const spaceNotes = [220, 261.6, 329.6, 392, 440, 523.3, 392, 329.6];
+    let noteIdx = 0;
+
+    function startSpaceMusic() {
+      if (musicInterval) clearInterval(musicInterval);
+      noteIdx = 0;
+      musicInterval = setInterval(() => {
+        if (!musicOn || !isBattleActive) return;
+        const freq = spaceNotes[noteIdx % spaceNotes.length];
+        try {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.38);
+        } catch (e) {}
+        noteIdx++;
+      }, 260);
+    }
+
+    function stopSpaceMusic() {
+      if (musicInterval) clearInterval(musicInterval);
+    }
+
+    function fanfare() {
+      if (!sfxOn) return;
+      [261, 329, 392, 523, 659, 783].forEach((f, i) => {
+        setTimeout(() => playTone(f, 'sine', 0.25, 0.12), i * 110);
+      });
+    }
+
+    document.getElementById('audio-btn').addEventListener('click', () => {
+      sfxOn = !sfxOn;
+      document.getElementById('audio-btn').textContent = sfxOn ? '🔊 SFX: ON' : '🔇 SFX: MUTED';
+    });
+
+    document.getElementById('music-btn').addEventListener('click', () => {
+      musicOn = !musicOn;
+      document.getElementById('music-btn').textContent = musicOn ? '🎵 SYNTH: ON' : '🎵 SYNTH: OFF';
+    });
+
+    function showNotification(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3500);
+    }
+
+    function copyText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text);
+      }
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      return Promise.resolve();
+    }
+
+    // --- 2. 12 PRIMARY HERO SHIPS + INFINITE FLEET RESERVE ---
+    const PRIMARY_SHIPS = [
+      { id: 'rocket', name: 'Star Rocket', icon: '🚀', color: '#38bdf8' },
+      { id: 'saucer', name: 'Cosmic Saucer', icon: '🛸', color: '#a855f7' },
+      { id: 'satellite', name: 'Orbital Sat', icon: '🛰️', color: '#10b981' },
+      { id: 'comet', name: 'Solar Comet', icon: '☄️', color: '#f59e0b' },
+      { id: 'nova', name: 'Super Nova', icon: '🌟', color: '#eab308' },
+      { id: 'nebula', name: 'Nebula Jet', icon: '🌌', color: '#6366f1' },
+      { id: 'warp', name: 'Warp Drive', icon: '⚡', color: '#ec4899' },
+      { id: 'aegis', name: 'Aegis Cruiser', icon: '🛡️', color: '#06b6d4' },
+      { id: 'invader', name: 'Void Hunter', icon: '👾', color: '#84cc16' },
+      { id: 'titan', name: 'Titan Dread', icon: '🪐', color: '#f97316' },
+      { id: 'pioneer', name: 'Pioneer Scout', icon: '🔭', color: '#14b8a6' },
+      { id: 'meteor', name: 'Meteor Dart', icon: '🌠', color: '#ef4444' }
+    ];
+
+    let selectedShipId = 'rocket';
+    const lockedShips = {};
+
+    // Configured Active Roster: Sonia, Jasper, Ash, Graham, Marcus, Zoya
+    const currentPilots = [
+      { name: "Sonia (YOU)", icon: "🚀", color: "#38bdf8", isYou: true, wing: 1 },
+      { name: "Jasper", icon: "🛸", color: "#a855f7", isYou: false, wing: 2 },
+      { name: "Ash", icon: "🛰️", color: "#10b981", isYou: false, wing: 3 },
+      { name: "Graham", icon: "☄️", color: "#f59e0b", isYou: false, wing: 4 },
+      { name: "Marcus", icon: "⚡", color: "#ec4899", isYou: false, wing: 5 },
+      { name: "Zoya", icon: "🌟", color: "#eab308", isYou: false, wing: 6 }
+    ];
+
+    function updateCrewRoster() {
+      const countEl = document.getElementById('crew-count');
+      const chipsEl = document.getElementById('crew-chips');
+      countEl.textContent = `${currentPilots.length} Pilots`;
+      chipsEl.innerHTML = currentPilots.map((p, idx) => `
+        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium ${p.isYou ? 'bg-cyan-500/20 border border-cyan-400 text-cyan-200' : 'bg-slate-800 text-slate-300'}">
+          <span>${p.icon}</span> <span>${p.name}</span>
+          ${idx >= 12 ? `<span class="text-[9px] bg-indigo-500/30 text-indigo-300 px-1 rounded">Wing #${idx + 1}</span>` : ''}
+        </span>
+      `).join('');
+    }
+
+    function renderShipGrid() {
+      const grid = document.getElementById('avatar-grid');
+      const myName = document.getElementById('player-name-input').value;
+      const availableHeroShips = PRIMARY_SHIPS.filter(s => !lockedShips[s.id] || lockedShips[s.id] === myName);
+      
+      let html = PRIMARY_SHIPS.map(s => {
+        const isLocked = lockedShips[s.id] && lockedShips[s.id] !== myName;
+        const isSelected = selectedShipId === s.id;
+        return `
+          <button 
+            type="button"
+            data-id="${s.id}" 
+            ${isLocked ? 'disabled' : ''}
+            class="ship-card p-2 rounded-xl border flex flex-col items-center justify-center transition-all ${
+              isSelected 
+                ? 'border-cyan-400 bg-cyan-500/20 shadow-lg shadow-cyan-500/20' 
+                : isLocked 
+                  ? 'border-slate-800 bg-slate-900/40 opacity-30 cursor-not-allowed'
+                  : 'border-slate-800 bg-slate-900/80 hover:border-slate-700'
+            }"
+          >
+            <span class="text-2xl mb-1">${s.icon}</span>
+            <span class="text-[10px] font-semibold text-slate-300 truncate w-full text-center">${s.name}</span>
+            ${isLocked ? `<span class="text-[8px] text-red-400 font-bold">CLAIMED</span>` : ''}
+          </button>
+        `;
+      }).join('');
+
+      if (availableHeroShips.length === 0 || selectedShipId.startsWith('reserve_')) {
+        const reserveWingNum = currentPilots.length + 1;
+        html += `
+          <button 
+            type="button"
+            data-id="reserve_${reserveWingNum}" 
+            class="ship-card col-span-2 sm:col-span-3 p-2 rounded-xl border border-indigo-500 bg-indigo-500/20 shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2"
+          >
+            <span class="text-xl">🚀</span>
+            <div class="text-left">
+              <div class="text-[11px] font-bold text-indigo-300">Infinite Fleet Reserve</div>
+              <div class="text-[9px] text-slate-300">Vanguard Cruiser (Wing #${reserveWingNum})</div>
+            </div>
+          </button>
+        `;
+      }
+
+      grid.innerHTML = html;
+
+      grid.querySelectorAll('.ship-card:not([disabled])').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedShipId = btn.dataset.id;
+          playTone(520, 'sine', 0.05);
+          renderShipGrid();
+        });
+      });
+    }
+    renderShipGrid();
+    updateCrewRoster();
+
+    // Invite Link Copy
+    document.getElementById('copy-room-link-btn').addEventListener('click', () => {
+      const code = document.getElementById('room-code-input').value || 'DAILY-SYNC';
+      let origin = window.location.origin;
+      if (origin === 'null' || window.location.protocol === 'file:') {
+        origin = 'https://soniran635.github.io/pirate-standup-royale';
+      }
+      const url = `${origin}${window.location.pathname}?room=${encodeURIComponent(code)}`;
+      copyText(url).then(() => showNotification('Universal mission link copied! Share with your team.'));
+    });
+
+    document.getElementById('enter-arena-btn').addEventListener('click', () => {
+      document.getElementById('lobby-screen').classList.add('hidden');
+      audioCtx.resume();
+      playTone(440, 'sine', 0.1);
+    });
+
+    // --- 3. PERSISTENT ROOM SEASON STORAGE ---
+    function getRoomSeasonKey() {
+      const room = document.getElementById('room-code-input').value || 'DAILY-SYNC';
+      const d = new Date();
+      return `cosmic_sync_${room}_${d.getFullYear()}_${d.getMonth() + 1}`;
+    }
+
+    function recordSeasonStats(ranked) {
+      const key = getRoomSeasonKey();
+      let season = JSON.parse(localStorage.getItem(key) || '{}');
+
+      ranked.forEach(([name, stardust], idx) => {
+        if (!season[name]) season[name] = { stardust: 0, crowns: 0, games: 0 };
+        season[name].stardust += stardust;
+        season[name].games += 1;
+        if (idx === 0) season[name].crowns += 1;
+      });
+
+      localStorage.setItem(key, JSON.stringify(season));
+      renderSeasonLeaderboard();
+    }
+
+    function renderSeasonLeaderboard() {
+      const key = getRoomSeasonKey();
+      const season = JSON.parse(localStorage.getItem(key) || '{}');
+      const sorted = Object.entries(season).sort((a, b) => b[1].stardust - a[1].stardust);
+      const listEl = document.getElementById('season-leaderboard-list');
+
+      if (sorted.length === 0) {
+        listEl.innerHTML = `<li class="text-slate-500 text-center py-2">No flights recorded yet. Complete your first mission!</li>`;
+        return;
+      }
+
+      listEl.innerHTML = sorted.map(([name, stats], idx) => `
+        <li class="flex justify-between items-center p-2 rounded-lg ${idx === 0 ? 'bg-cyan-500/10 border border-cyan-500/40 text-cyan-300 font-bold' : 'text-slate-300'}">
+          <span class="flex items-center gap-2">
+            <span class="font-mono text-slate-500">#${idx + 1}</span>
+            <span>${name}</span>
+            ${idx === 0 ? '👑' : ''}
+          </span>
+          <span class="text-amber-400 font-semibold">${stats.crowns} 🏆</span>
+          <span class="font-mono font-bold text-cyan-400">${stats.stardust.toLocaleString()} ✨</span>
+        </li>
+      `).join('');
+
+      document.getElementById('season-bounty-text').textContent = document.getElementById('monthly-bounty-input').value;
+    }
+
+    document.getElementById('export-season-btn').addEventListener('click', () => {
+      const key = getRoomSeasonKey();
+      const season = localStorage.getItem(key) || '{}';
+      copyText(season).then(() => showNotification('Season Ledger JSON copied to clipboard!'));
+    });
+
+    // Modal Tabs
+    document.getElementById('tab-today-btn').addEventListener('click', () => {
+      document.getElementById('tab-today-content').classList.remove('hidden');
+      document.getElementById('tab-season-content').classList.add('hidden');
+      document.getElementById('tab-today-btn').className = 'flex-1 py-2 text-xs font-bold retro-font text-cyan-400 border-b-2 border-cyan-400';
+      document.getElementById('tab-season-btn').className = 'flex-1 py-2 text-xs font-bold retro-font text-slate-400 hover:text-slate-200';
+    });
+
+    document.getElementById('tab-season-btn').addEventListener('click', () => {
+      document.getElementById('tab-season-content').classList.remove('hidden');
+      document.getElementById('tab-today-content').classList.add('hidden');
+      document.getElementById('tab-season-btn').className = 'flex-1 py-2 text-xs font-bold retro-font text-cyan-400 border-b-2 border-cyan-400';
+      document.getElementById('tab-today-btn').className = 'flex-1 py-2 text-xs font-bold retro-font text-slate-400 hover:text-slate-200';
+    });
+
+    // --- 4. ARENA SETUP & CANVAS INITIALIZATION ---
+    const canvas = document.getElementById('arena');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    let mouseX = canvas.width / 2;
+    let mouseY = canvas.height / 2;
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    });
+
+    const keys = {};
+    window.addEventListener('keydown', (e) => { keys[e.key.toLowerCase()] = true; });
+    window.addEventListener('keyup', (e) => { keys[e.key.toLowerCase()] = false; });
+
+    // Distinct Stardust Crystals (Neon Gold & Cyan)
+    const crystals = [];
+    function spawnCrystals() {
+      crystals.length = 0;
+      for (let i = 0; i < 90; i++) {
+        crystals.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 4 + 4,
+          rot: Math.random() * Math.PI,
+          rotSpeed: (Math.random() - 0.5) * 0.05,
+          color: Math.random() > 0.4 ? '#fbbf24' : '#38bdf8'
+        });
+      }
+    }
+    spawnCrystals();
+
+    // Fiery Crimson Singularities / Black Holes
+    const blackHoles = [
+      { x: canvas.width * 0.25, y: canvas.height * 0.35, r: 30, angle: 0 },
+      { x: canvas.width * 0.75, y: canvas.height * 0.65, r: 30, angle: 0 },
+      { x: canvas.width * 0.50, y: canvas.height * 0.20, r: 30, angle: 0 }
+    ];
+
+    // Participating Ships: Sonia, Jasper, Ash, Graham, Marcus, Zoya
+    let ships = [];
+    function initShips() {
+      const myName = document.getElementById('player-name-input').value || 'Sonia';
+      let myShip = PRIMARY_SHIPS.find(s => s.id === selectedShipId) || { id: selectedShipId, name: 'Vanguard', icon: '🚀', color: '#38bdf8' };
+
+      ships = [
+        { name: `${myName} (YOU)`, icon: myShip.icon, color: myShip.color, isPlayer: true, x: canvas.width * 0.2, y: canvas.height * 0.5, r: 24, angle: 0, speedMultiplier: 1.0, lastX: 0, lastY: 0, stillFrames: 0 },
+        { name: "Jasper", icon: "🛸", color: "#a855f7", isPlayer: false, x: canvas.width * 0.8, y: canvas.height * 0.3, r: 24, angle: 0, speedMultiplier: 1.0, lastX: 0, lastY: 0, stillFrames: 0 },
+        { name: "Ash", icon: "🛰️", color: "#10b981", isPlayer: false, x: canvas.width * 0.5, y: canvas.height * 0.8, r: 24, angle: 0, speedMultiplier: 1.0, lastX: 0, lastY: 0, stillFrames: 0 },
+        { name: "Graham", icon: "☄️", color: "#f59e0b", isPlayer: false, x: canvas.width * 0.3, y: canvas.height * 0.2, r: 24, angle: 0, speedMultiplier: 1.0, lastX: 0, lastY: 0, stillFrames: 0 },
+        { name: "Marcus", icon: "⚡", color: "#ec4899", isPlayer: false, x: canvas.width * 0.7, y: canvas.height * 0.7, r: 24, angle: 0, speedMultiplier: 1.0, lastX: 0, lastY: 0, stillFrames: 0 },
+        { name: "Zoya", icon: "🌟", color: "#eab308", isPlayer: false, x: canvas.width * 0.6, y: canvas.height * 0.4, r: 24, angle: 0, speedMultiplier: 1.0, lastX: 0, lastY: 0, stillFrames: 0 }
+      ];
+    }
+    initShips();
+
+    // Spacebar Warp Boost
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && isBattleActive) {
+        e.preventDefault();
+        ships.forEach((p) => {
+          if (p.isPlayer && p.r > 20) {
+            playTone(480, 'sine', 0.12, 0.12);
+            p.speedMultiplier = 2.2;
+            p.r = Math.max(18, p.r * 0.98);
+            setTimeout(() => { p.speedMultiplier = 1.0; }, 700);
+          }
+        });
+      }
+    });
+
+    // --- 5. 90-SECOND COUNTDOWN & PODIUM SEQUENCE ---
+    let timeLeft = 90;
+    let battleTimer = null;
+    let isBattleActive = false;
+
+    const pilotPrompts = [
+      "Flight Lead! You conquered the cosmos! Share in 30 seconds: What critical milestone did you land yesterday, and what gravity well is blocking your ship today?",
+      "Top Gun of the Standup! Tell the crew: Did your systems execute with zero alerts, or did you survive an engine stall?",
+      "Orbital Victor! Name one crew member who deserves an MVP crystal boost today, and give your flight update!",
+      "Supreme Commander! What trajectory are you charting today, and which flight wing needs to swarm with you to make it happen?"
+    ];
+
+    function startBattle() {
+      initShips();
+      spawnCrystals();
+      timeLeft = 90;
+      isBattleActive = true;
+      document.getElementById('start-btn').disabled = true;
+      document.getElementById('start-btn').classList.add('opacity-40');
+      document.getElementById('winner-modal').classList.add('hidden');
+      document.getElementById('winner-modal').classList.remove('flex');
+
+      audioCtx.resume();
+      startSpaceMusic();
+
+      if (battleTimer) clearInterval(battleTimer);
+      battleTimer = setInterval(() => {
+        timeLeft--;
+        const mins = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+        const secs = String(timeLeft % 60).padStart(2, '0');
+        document.getElementById('timer-display').textContent = `${mins}:${secs}`;
+        
+        if (timeLeft <= 5) playTone(580, 'sine', 0.06);
+
+        if (timeLeft <= 0) {
+          endBattle("⏱️ ORBIT REACHED: HIGHEST STARDUST TAKES THE MIC!");
+        }
+      }, 1000);
+    }
+
+    let lastRankedResults = [];
+
+    function endBattle(reason = "MISSION ACCOMPLISHED!") {
+      isBattleActive = false;
+      clearInterval(battleTimer);
+      stopSpaceMusic();
+      document.getElementById('start-btn').disabled = false;
+      document.getElementById('start-btn').classList.remove('opacity-40');
+      fanfare();
+
+      const totals = {};
+      ships.forEach(c => {
+        const cleanName = c.name.replace(' (YOU)', '');
+        totals[cleanName] = (totals[cleanName] || 0) + Math.round(c.r * 1500);
+      });
+
+      lastRankedResults = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+      const winner = lastRankedResults[0];
+
+      document.getElementById('win-reason-badge').textContent = reason;
+      document.getElementById('winner-name').textContent = winner[0];
+      document.getElementById('winner-bounty').textContent = `STARDUST: ${winner[1].toLocaleString()} CREDITS`;
+      document.getElementById('winner-prompt').textContent = pilotPrompts[Math.floor(Math.random() * pilotPrompts.length)];
+
+      const speakerList = document.getElementById('speaker-order-list');
+      speakerList.innerHTML = lastRankedResults.map(([name, bounty], idx) => `
+        <li class="flex items-center justify-between p-2 rounded ${idx === 0 ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40' : 'text-slate-300'}">
+          <span><strong>#${idx + 1} Speaker:</strong> ${name}</span>
+          <span class="font-mono text-[11px] text-cyan-400">${bounty.toLocaleString()} ✨</span>
+        </li>
+      `).join('');
+
+      recordSeasonStats(lastRankedResults);
+
+      const modal = document.getElementById('winner-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    document.getElementById('start-btn').addEventListener('click', startBattle);
+    document.getElementById('restart-btn').addEventListener('click', () => {
+      document.getElementById('winner-modal').classList.add('hidden');
+      document.getElementById('winner-modal').classList.remove('flex');
+      startBattle();
+    });
+
+    // 1-Click Copy Sequence to Slack / Teams
+    document.getElementById('copy-slack-btn').addEventListener('click', () => {
+      if (lastRankedResults.length === 0) return;
+      const bounty = document.getElementById('monthly-bounty-input').value;
+      const text = [
+        "🚀 *COSMIC SYNC // TODAY'S MEETING SPEAKER SEQUENCE*",
+        ...lastRankedResults.map(([name, pts], i) => `${i + 1}. ${name} (${pts.toLocaleString()} Stardust)`),
+        "",
+        `🏆 *Monthly Flight Bounty:* ${bounty}`,
+        "🌟 *Flight Lead Prompt:* What critical milestone did you land yesterday, and what blocker is in your path today?"
+      ].join("\n");
+
+      copyText(text).then(() => showNotification("Sequence copied to clipboard for Slack / Teams!"));
+    });
+
+    // --- 6. FLIGHT PHYSICS, COMBAT, & ANTI-CAMP ENGINE ---
+    function gameLoop() {
+      if (isBattleActive) {
+        const playerShip = ships.find(c => c.isPlayer);
+        if (playerShip) {
+          if (keys['w'] || keys['arrowup']) mouseY = Math.max(20, playerShip.y - 120);
+          if (keys['s'] || keys['arrowdown']) mouseY = Math.min(canvas.height - 20, playerShip.y + 120);
+          if (keys['a'] || keys['arrowleft']) mouseX = Math.max(20, playerShip.x - 120);
+          if (keys['d'] || keys['arrowright']) mouseX = Math.min(canvas.width - 20, playerShip.x + 120);
+        }
+
+        ships.forEach(p => {
+          // Anti-Camping Detection
+          const movedDist = Math.hypot(p.x - p.lastX, p.y - p.lastY);
+          if (movedDist < 1.0) {
+            p.stillFrames++;
+            if (p.stillFrames > 180) {
+              p.r = Math.max(16, p.r * 0.995);
+            }
+          } else {
+            p.stillFrames = 0;
+          }
+          p.lastX = p.x;
+          p.lastY = p.y;
+
+          if (p.isPlayer) {
+            const dx = mouseX - p.x;
+            const dy = mouseY - p.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist > 5) {
+              p.angle = Math.atan2(dy, dx);
+              const speed = Math.max(2.0, (5.4 - (p.r * 0.03))) * p.speedMultiplier;
+              p.x += Math.cos(p.angle) * speed;
+              p.y += Math.sin(p.angle) * speed;
+            }
+          } else {
+            // Intelligent Bot AI: Hunt smaller ships, flee larger ones, otherwise gather crystals
+            let huntedPrey = null;
+            let threateningPredator = null;
+
+            ships.forEach(other => {
+              if (other !== p) {
+                const dist = Math.hypot(other.x - p.x, other.y - p.y);
+                if (dist < 260) {
+                  if (other.r < p.r * 0.88 && (!huntedPrey || dist < huntedPrey.dist)) {
+                    huntedPrey = { ship: other, dist };
+                  } else if (other.r > p.r * 1.15 && (!threateningPredator || dist < threateningPredator.dist)) {
+                    threateningPredator = { ship: other, dist };
+                  }
+                }
+              }
+            });
+
+            if (threateningPredator) {
+              const dx = p.x - threateningPredator.ship.x;
+              const dy = p.y - threateningPredator.ship.y;
+              p.angle = Math.atan2(dy, dx);
+            } else if (huntedPrey) {
+              const dx = huntedPrey.ship.x - p.x;
+              const dy = huntedPrey.ship.y - p.y;
+              p.angle = Math.atan2(dy, dx);
+            } else {
+              let target = crystals[0];
+              let minDist = 9999;
+              crystals.forEach(c => {
+                const d = Math.hypot(c.x - p.x, c.y - p.y);
+                if (d < minDist) { minDist = d; target = c; }
+              });
+              if (target) {
+                const dx = target.x - p.x;
+                const dy = target.y - p.y;
+                p.angle = Math.atan2(dy, dx);
+              }
+            }
+
+            const speed = Math.max(1.6, (4.2 - (p.r * 0.025)));
+            p.x += Math.cos(p.angle) * speed;
+            p.y += Math.sin(p.angle) * speed;
+          }
+
+          p.x = Math.max(p.r, Math.min(canvas.width - p.r, p.x));
+          p.y = Math.max(p.r, Math.min(canvas.height - p.r, p.y));
+
+          // Collect Crystals
+          crystals.forEach(c => {
+            const dist = Math.hypot(c.x - p.x, c.y - p.y);
+            if (dist < p.r + 8) {
+              p.r += 0.45;
+              c.x = Math.random() * canvas.width;
+              c.y = Math.random() * canvas.height;
+              if (p.isPlayer) playTone(680, 'sine', 0.035, 0.05);
+            }
+          });
+
+          // Crimson Black Holes Damage
+          blackHoles.forEach(bh => {
+            const dist = Math.hypot(bh.x - p.x, bh.y - p.y);
+            if (dist < bh.r + p.r) {
+              p.r = Math.max(16, p.r * 0.85);
+              playTone(110, 'sawtooth', 0.25, 0.09);
+            }
+          });
+        });
+
+        // SHIP-ON-SHIP ABSORPTION COMBAT
+        for (let i = 0; i < ships.length; i++) {
+          for (let j = 0; j < ships.length; j++) {
+            if (i !== j && ships[i] && ships[j]) {
+              const attacker = ships[i];
+              const victim = ships[j];
+              const dist = Math.hypot(victim.x - attacker.x, victim.y - attacker.y);
+              if (dist < attacker.r && attacker.r > victim.r * 1.15) {
+                attacker.r += victim.r * 0.35;
+                playTone(180, 'square', 0.2, 0.15);
+                victim.x = Math.random() * (canvas.width - 100) + 50;
+                victim.y = Math.random() * (canvas.height - 100) + 50;
+                victim.r = 20;
+              }
+            }
+          }
+        }
+
+        blackHoles.forEach(bh => { bh.angle += 0.025; });
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Starfield Grid
+      ctx.strokeStyle = 'rgba(30, 41, 59, 0.35)';
+      ctx.lineWidth = 1;
+      const step = 45;
+      for (let x = 0; x < canvas.width; x += step) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += step) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+      }
+
+      // 1. Draw Fiery Crimson Black Holes
+      blackHoles.forEach(bh => {
+        ctx.save();
+        ctx.translate(bh.x, bh.y);
+        ctx.rotate(bh.angle);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, bh.r + 14, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(234, 88, 12, 0.25)';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, bh.r + 6, 0, Math.PI * 2);
+        ctx.strokeStyle = '#ea580c';
+        ctx.lineWidth = 3.5;
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = '#dc2626';
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, bh.r, 0, Math.PI * 2);
+        ctx.fillStyle = '#020617';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ef4444';
+        ctx.stroke();
+
+        ctx.restore();
+      });
+
+      // 2. Draw 4-Point Rotating Neon Gold / Cyan Crystals
+      crystals.forEach(c => {
+        c.rot += c.rotSpeed;
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.rotate(c.rot);
+        ctx.beginPath();
+        ctx.moveTo(0, -c.size * 1.5);
+        ctx.lineTo(c.size * 0.5, -c.size * 0.5);
+        ctx.lineTo(c.size * 1.5, 0);
+        ctx.lineTo(c.size * 0.5, c.size * 0.5);
+        ctx.lineTo(0, c.size * 1.5);
+        ctx.lineTo(-c.size * 0.5, c.size * 0.5);
+        ctx.lineTo(-c.size * 1.5, 0);
+        ctx.lineTo(-c.size * 0.5, -c.size * 0.5);
+        ctx.closePath();
+        ctx.fillStyle = c.color;
+        ctx.shadowBlur = 9;
+        ctx.shadowColor = c.color;
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // 3. Draw Ships with Combat Rings & Directional Rockets
+      const playerShip = ships.find(c => c.isPlayer);
+
+      ships.forEach(p => {
+        if (playerShip && isBattleActive && p !== playerShip) {
+          if (playerShip.r > p.r * 1.15) {
+            ctx.beginPath();
+            ctx.setLineDash([4, 4]);
+            ctx.arc(p.x, p.y, p.r + 12, 0, Math.PI * 2);
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.setLineDash([]);
+          } else if (p.r > playerShip.r * 1.15) {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r + 10, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(239, 68, 68, 0.7)';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+          }
+        }
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+
+        if (isBattleActive) {
+          ctx.beginPath();
+          ctx.moveTo(-p.r - 2, -p.r * 0.35);
+          ctx.lineTo(-p.r - (Math.random() * 14 + 10), 0);
+          ctx.lineTo(-p.r - 2, p.r * 0.35);
+          ctx.closePath();
+          ctx.fillStyle = p.isPlayer ? '#38bdf8' : '#f97316';
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = p.isPlayer ? '#38bdf8' : '#f97316';
+          ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(p.r * 1.3, 0);
+        ctx.lineTo(-p.r * 0.8, -p.r * 0.8);
+        ctx.lineTo(-p.r * 0.4, 0);
+        ctx.lineTo(-p.r * 0.8, p.r * 0.8);
+        ctx.closePath();
+
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = p.isPlayer ? 20 : 8;
+        ctx.shadowColor = p.color;
+        ctx.fill();
+        ctx.lineWidth = p.isPlayer ? 3.5 : 2;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+
+        ctx.restore();
+
+        ctx.font = `${Math.max(14, p.r * 0.5)}px serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(p.icon, p.x, p.y + 5);
+
+        ctx.fillStyle = p.isPlayer ? '#38bdf8' : '#ffffff';
+        ctx.font = p.isPlayer ? 'bold 12px Inter, sans-serif' : '11px Inter, sans-serif';
+        ctx.fillText(p.name, p.x, p.y - p.r - 6);
+      });
+
+      // Live Leaderboard
+      const sorted = [...ships].sort((a, b) => b.r - a.r);
+      const listEl = document.getElementById('leaderboard-list');
+      listEl.innerHTML = sorted.slice(0, 6).map((c, i) => `
+        <li class="flex justify-between items-center ${c.isPlayer ? 'text-cyan-300 font-extrabold' : 'text-slate-300'}">
+          <span>${i + 1}. ${c.icon} ${c.name.split(' ')[0]}</span>
+          <span class="text-cyan-400 font-mono">${Math.round(c.r * 1500).toLocaleString()}</span>
+        </li>
+      `).join('');
+
+      requestAnimationFrame(gameLoop);
+    }
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
