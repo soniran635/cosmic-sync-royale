@@ -51,7 +51,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <div>
           <label class="block text-xs uppercase tracking-wider text-slate-300 font-bold mb-1">Commander Call-Sign</label>
-          <input id="player-name-input" type="text" maxlength="16" value="Jack" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400 font-medium">
+          <input id="player-name-input" type="text" maxlength="16" value="Sonia" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyan-400 font-medium">
         </div>
         <div>
           <label class="block text-xs uppercase tracking-wider text-slate-300 font-bold mb-1">Mission Room Code</label>
@@ -171,7 +171,7 @@
     <div class="bg-slate-900 border-4 border-cyan-400 rounded-2xl max-w-2xl w-full p-6 text-center shadow-2xl relative my-auto">
       <div class="text-5xl mb-2 animate-bounce">👑</div>
       <h2 id="win-reason-badge" class="retro-font text-xs text-cyan-400 mb-1">MISSION ACCOMPLISHED!</h2>
-      <h3 id="winner-name" class="text-3xl font-black text-white mb-1">Pilot</h3>
+      <h3 id="winner-name" class="text-3xl font-black text-white mb-1">Sonia</h3>
       <div id="winner-bounty" class="retro-font text-xs text-amber-300 mb-4">STARDUST: 142,500 CREDITS</div>
 
       <!-- TABS -->
@@ -375,7 +375,7 @@
     });
 
     function renderCrewChips() {
-      const myName = playerNameInput.value.trim() || 'Commander';
+      const myName = playerNameInput.value.trim() || 'Sonia';
       const myShip = PRIMARY_SHIPS.find(s => s.id === selectedShipId) || PRIMARY_SHIPS[0];
       const chipsEl = document.getElementById('crew-chips');
       const countEl = document.getElementById('crew-count');
@@ -420,7 +420,6 @@
         });
       });
 
-      // Fixed: prevent default and stop propagation so no layout flash or form event occurs
       chipsEl.querySelectorAll('.remove-pilot-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
@@ -597,7 +596,7 @@
 
     let ships = [];
     function initShips() {
-      const myName = playerNameInput.value.trim() || 'Commander';
+      const myName = playerNameInput.value.trim() || 'Sonia';
       let myShip = PRIMARY_SHIPS.find(s => s.id === selectedShipId) || PRIMARY_SHIPS[0];
 
       ships = [{
