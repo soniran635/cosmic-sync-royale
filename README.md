@@ -12,6 +12,8 @@
 Experience the live flight deck directly in your browser:  
 👉 **[https://soniran635.github.io/cosmic-sync-royale/](https://soniran635.github.io/cosmic-sync-royale/)**
 
+![Cosmic Sync Orbital Combat Preview](preview.gif)
+
 ---
 
 ## 💡 The Problem & The Solution
