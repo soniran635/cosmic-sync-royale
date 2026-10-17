@@ -1,15 +1,16 @@
 # 🌌 Cosmic Sync: Take The Mic!
 
 [![Live Demo](https://img.shields.io/badge/Live-Web%20App-38bdf8?style=for-the-badge&logo=googlechrome)](https://soniran635.github.io/cosmic-sync-royale/)
-[![Support](https://img.shields.io/badge/Sponsor-Support%20Project-ffdd00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com)
+[![Buy Me A Coffee](https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/soniran635)
+[![Gumroad License](https://img.shields.io/badge/Commercial-Gumroad%20License-36B37E?style=for-the-badge&logo=gumroad&logoColor=white)](https://soniran635.gumroad.com)
 [![Status](https://img.shields.io/badge/Release-v1.0.0--Orbital-10b981?style=for-the-badge)](https://soniran635.github.io/cosmic-sync-royale/)
 
 > **Turn meeting fatigue into momentum.** A zero-install, browser-based arcade icebreaker engineered to automate meeting speaker sequence, gamify agile syncs, and export formatted queues directly to Slack and Microsoft Teams in one click.
 
 ---
 
-## 🕹️ Live App
-Experience the live flight deck directly in your browser:  
+## 🕹️ Live Flight Deck
+Experience the live application directly in your browser:  
 👉 **[https://soniran635.github.io/cosmic-sync-royale/](https://soniran635.github.io/cosmic-sync-royale/)**
 
 ![Cosmic Sync Orbital Combat Preview](preview.gif)
@@ -62,12 +63,11 @@ Experience the live flight deck directly in your browser:
 
 ---
 
-## 💼 Enterprise & Custom Deployments
+## 💼 Enterprise Licensing & Support
 
-Looking to deploy a tailored version with your organization's custom branding, dedicated single sign-on (SSO), internal leaderboards, or direct Jira/Slack webhook integrations?
-
-- **Commercial Inquiries & Licensing:** Reach out via [LinkedIn](https://linkedin.com) or submit an issue in this repository.
-- **Support the Project:** If this tool streamlined your daily standups, consider [sponsoring ongoing development](https://buymeacoffee.com).
+- **☕ Buy Me a Coffee:** If Cosmic Sync energizes your team standups, consider [fueling future development with a coffee](https://buymeacoffee.com/soniran635).
+- **🛍️ Commercial & Offline Licenses:** Available via [Gumroad](https://soniran635.gumroad.com) for organizations requiring standalone, self-hosted deployment packages.
+- **🏢 Enterprise Custom Deployments:** Looking to deploy a customized instance featuring corporate SSO, custom ship branding, private internal leaderboards, or direct Jira webhook integrations? Reach out via [LinkedIn](https://linkedin.com).
 
 ---
 
