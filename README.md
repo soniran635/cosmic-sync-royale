@@ -1,8 +1,9 @@
 # 🌌 Cosmic Sync: Take The Mic!
 
 [![Live Web App](https://img.shields.io/badge/Live-Web%20App-38bdf8?style=for-the-badge&logo=googlechrome&logoColor=white)](https://soniran635.github.io/cosmic-sync-royale/)
-[![Support](https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/soniran)
-[![Commercial License](https://img.shields.io/badge/Commercial-Gumroad%20License-ec4899?style=for-the-badge&logo=gumroad&logoColor=white)](https://soniran4.gumroad.com/l/bnptnv)
+[![Release](https://img.shields.io/badge/Release-v1.0.0--orbital-10b981?style=for-the-badge&logo=github&logoColor=white)](https://github.com/soniran635/cosmic-sync-royale/releases)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/soniran)
+[![Commercial License](https://img.shields.io/badge/Commercial%20License-ec4899?style=for-the-badge&logo=gumroad&logoColor=white)](https://soniran4.gumroad.com/l/bnptnv)
 
 > **Turn meeting fatigue into momentum.** A zero-install, browser-based arcade icebreaker engineered to automate meeting speaker sequence, gamify agile syncs, and export formatted queues directly to Slack and Microsoft Teams in one click.
 
